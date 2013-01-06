@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/refresh"
+          android:icon="@drawable/ic_menu_refresh"
+          android:title="@string/refresh_title"
+          android:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/tags"
+          android:title="@string/tags_title"
+          android:showAsAction="never" />
+    <item android:id="@+id/settings"
+          android:title="@string/settings_title"
+          android:showAsAction="never" />
+</menu>

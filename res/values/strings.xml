@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NFC Doorbells</string>
+
+    <!-- Activity names -->
+    <string name="messages_activity_name">Messages</string>
+    <string name="tags_activity_name">Tags</string>
+
+    <!-- Action bar items -->
+    <string name="refresh_title">Refresh</string>
+    <string name="tags_title">Tags</string>
+    <string name="settings_title">Settings</string>
+
+    <!-- Messages Activity -->
+    <string name="empty_msg_list">No messages. Boo...</string>
+</resources>

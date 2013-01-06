@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+
+    <TextView android:id="@+id/datetime"
+              android:layout_alignParentRight="true"
+              android:layout_alignParentTop="true"
+              android:layout_height="wrap_content"
+              android:layout_width="wrap_content"
+              android:textSize="18sp" />
+
+    <TextView android:id="@+id/display_name"
+              android:layout_alignParentLeft="true"
+              android:layout_alignParentTop="true"
+              android:layout_toLeftOf="@id/datetime"
+              android:layout_height="wrap_content"
+              android:layout_width="match_parent"
+              android:textSize="18sp" />
+
+    <TextView android:id="@+id/contents"
+              android:layout_below="@id/display_name"
+              android:layout_alignParentLeft="true"
+              android:layout_height="wrap_content"
+              android:layout_width="wrap_content"
+              android:ellipsize="end"
+              android:maxLines="1"
+              android:scrollHorizontally="true"
+              android:singleLine="true" />
+
+</RelativeLayout>
