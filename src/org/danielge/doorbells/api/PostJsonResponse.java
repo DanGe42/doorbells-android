@@ -48,10 +48,10 @@ class PostJsonResponse extends JsonResponse{
         return makeRequest(ApiUtils.concatQuery(resource, urlParams), contents);
     }
 
-    public static PostJsonResponse makeRequest(String resource,
-                                               String token,
-                                               Params urlParams,
-                                               String contents) throws IOException {
+    public static PostJsonResponse makeAuthRequest(String resource,
+                                                   String token,
+                                                   Params urlParams,
+                                                   String contents) throws IOException {
         if (urlParams == null) {
             Params params = Params.start("auth_token", token);
             return makeRequest(resource, params, contents);

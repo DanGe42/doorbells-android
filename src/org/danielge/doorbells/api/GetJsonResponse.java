@@ -37,9 +37,9 @@ class GetJsonResponse extends JsonResponse {
         return makeRequest(ApiUtils.concatQuery(resource, urlParams));
     }
 
-    public static GetJsonResponse makeRequest (String resource,
-                                               String token,
-                                               Params urlParams) throws IOException {
+    public static GetJsonResponse makeAuthRequest(String resource,
+                                                  String token,
+                                                  Params urlParams) throws IOException {
 
         if (urlParams == null) {
             Params params = Params.start("auth_token", token);

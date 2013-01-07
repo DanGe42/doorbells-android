@@ -32,11 +32,19 @@ class ApiUtils {
             return this;
         }
 
+        public Params addParam (String field, int value) {
+            return addParam(field, String.valueOf(value));
+        }
+
         public static Params start() {
             return new Params();
         }
 
         public static Params start (String field, String value) {
+            return Params.start().addParam(field, value);
+        }
+
+        public static Params start (String field, int value) {
             return Params.start().addParam(field, value);
         }
 
