@@ -26,8 +26,8 @@ public class DoorbellsClient {
     }
 
     private static class JsonStatusResponse {
-        private int status;
-        private String msg;
+        protected int status;
+        protected String msg;
 
         JsonStatusResponse() {}
     }
