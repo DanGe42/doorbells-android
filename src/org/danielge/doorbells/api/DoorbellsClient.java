@@ -84,46 +84,104 @@ public class DoorbellsClient {
 
     /* API for GCM registration */
 
-    public boolean registerDevice (String regId) throws IOException {
+    /**
+     * Registers a device via the registration ID provided by the Google Cloud
+     * Messaging API. This method does not return anything.
+     *
+     * @param regId The GCM-assigned device registration ID
+     *
+     * @throws InternalServerException  Could be thrown if the device registration
+     *                                  server is down
+     * @throws UnauthorizedException    If authorization failed.
+     * @throws DoorbellsApiException    If something is wrong with the server.
+     * @throws IOException  If the client fails to connect to the server
+     */
+    public void registerDevice (String regId)
+            throws IOException, DoorbellsApiException {
         Params params = Params.start("id", regId);
         JsonResponse response = PostJsonResponse.makeAuthRequest("/register",
                 authToken, params, null);
 
-        return response.getResponseCode() == 200;
+        if (response.getResponseCode() == HTTP_OK) {
+            return;
+        }
+
+        defaultErrorHandler(response);
     }
 
-    public boolean unregisterDevice (String regId) throws IOException {
+    /**
+     * Unregisters a device via the registration ID provided by the Google Cloud
+     * Messaging API.
+     *
+     * @param regId The GCM-assigned device registration ID
+     * @return  {@code true} if the server succeeded in unregistering the device.
+     *          {@code false} if the server could not find the device ID
+     * @throws UnauthorizedException    If authorization failed.
+     * @throws DoorbellsApiException    If a server error occurs.
+     * @throws IOException  If the client fails to connect to the server
+     */
+    public boolean unregisterDevice (String regId)
+            throws IOException, DoorbellsApiException {
         Params params = Params.start("id", regId);
         JsonResponse response = PostJsonResponse.makeAuthRequest("/unregister",
                 authToken, params, null);
 
-        return response.getResponseCode() == 200;
-
+        switch (response.getResponseCode()) {
+            case HTTP_OK:
+                return true;
+            case HTTP_NOT_FOUND:
+                return false;
+            default:
+                defaultErrorHandler(response);
+                return false;   // satisfy the compiler
+        }
     }
 
 
     /* API for messages */
 
-    public Message getMessage (int id) throws IOException {
+    /**
+     * Gets a message with the specified ID.
+     *
+     * @param id    The integer ID of the message
+     * @return  The Message object returned from the server, or {@code null} if a message
+     *          with the specified ID does not exist.
+     * @throws IOException  If the client fails to connect to the server
+     * @throws DoorbellsApiException    If a server error occurs
+     */
+    public Message getMessage (int id) throws IOException, DoorbellsApiException {
         JsonResponse response = GetJsonResponse.makeAuthRequest(
                 "/messages/" + id, authToken, null);
 
-        if (response.getResponseCode() == 200) {
-            return response.fromJson(Message.class);
+        switch (response.getResponseCode()) {
+            case HTTP_OK:
+                return response.fromJson(Message.class);
+            case HTTP_NOT_FOUND:
+                return null;
+            default:
+                defaultErrorHandler(response);
+                return null;    // satisfy the compiler
         }
-
-        return null;
     }
 
-    public Message[] getMessages() throws IOException {
+    /**
+     * Returns a list of Messages stored on the server for the specified user.
+     * Currently, this returns 15 messages.
+     *
+     * @return  An array of Messages
+     * @throws IOException  If the client fails to connect to the server
+     * @throws DoorbellsApiException    If a server error occurs
+     */
+    public Message[] getMessages() throws IOException, DoorbellsApiException {
         JsonResponse response = GetJsonResponse.makeAuthRequest(
                 "/messages", authToken, null);
 
-        if (response.getResponseCode() == 200) {
+        if (response.getResponseCode() == HTTP_OK) {
             return response.fromJson(GetMessagesResponse.class).messages;
         }
 
-        return null;
+        defaultErrorHandler(response);
+        return null;    // satisfy compiler
     }
 
     private static class GetMessagesResponse {
@@ -133,22 +191,41 @@ public class DoorbellsClient {
         GetMessagesResponse() {}
     }
 
-    public boolean sendMessage (String tagId, String message) throws IOException {
+
+    public boolean sendMessage (String tagId, String message)
+            throws IOException, DoorbellsApiException {
         Params urlParams = Params.start("tag", tagId);
         String contents = Params.start("contents", message).finish();
         JsonResponse response = PostJsonResponse.makeAuthRequest(
                 "/send", authToken, urlParams, contents);
 
-        return response.getResponseCode() == 200;
+        switch (response.getResponseCode()) {
+            case HTTP_OK:
+                return true;
+            case HTTP_NOT_FOUND:
+                return false;
+            default:
+                defaultErrorHandler(response);
+                return false;   // satisfy compiler
+        }
 
     }
 
-    public boolean deleteMessage (int msgId) throws IOException {
+    public boolean deleteMessage (int msgId)
+            throws IOException, DoorbellsApiException {
         Params params = Params.start("id", msgId);
         JsonResponse response = PostJsonResponse.makeAuthRequest(
                 "/messages/delete", authToken, params, null);
 
-        return response.getResponseCode() == 200;
+        switch (response.getResponseCode()) {
+            case HTTP_OK:
+                return true;
+            case HTTP_NOT_FOUND:
+                return false;
+            default:
+                defaultErrorHandler(response);
+                return false;   // satisfy compiler
+        }
     }
 
 
@@ -158,32 +235,27 @@ public class DoorbellsClient {
         JsonResponse response = GetJsonResponse.makeAuthRequest(
                 "/tags/" + tagId, authToken, null);
 
-        if (response.getResponseCode() == 200) {
-            return response.fromJson(Tag.class);
-        }
-
-        JsonStatusResponse status = response.fromJson(JsonStatusResponse.class);
         switch (response.getResponseCode()) {
-            case 404:
-                throw new ResourceNotFoundException(status.msg);
+            case HTTP_OK:
+                return response.fromJson(Tag.class);
+            case HTTP_NOT_FOUND:
+                return null;
             default:
-                defaultErrorHandler(status);
+                defaultErrorHandler(response);
+                return null;
         }
-
-        return null;
     }
 
     public Tag[] getTags() throws IOException, DoorbellsApiException {
         JsonResponse response = GetJsonResponse.makeAuthRequest(
                 "/tags", authToken, null);
 
-        if (response.getResponseCode() == 200) {
+
+        if (response.getResponseCode() == HTTP_OK) {
             return response.fromJson(GetTagsResponse.class).tags;
         }
 
-        JsonStatusResponse status = response.fromJson(JsonStatusResponse.class);
-        defaultErrorHandler(status);
-
+        defaultErrorHandler(response);
         return null;
     }
 
@@ -194,7 +266,7 @@ public class DoorbellsClient {
         GetTagsResponse() {}
     }
 
-    public Tag createTag (String location) throws IOException {
+    public Tag createTag (String location) throws IOException, DoorbellsApiException {
         String contents = Params.start("location", location).finish();
         JsonResponse response = PostJsonResponse.makeAuthRequest(
                 "/tags/create", authToken, null, contents);
@@ -203,31 +275,55 @@ public class DoorbellsClient {
             return response.fromJson(Tag.class);
         }
 
+        defaultErrorHandler(response);
         return null;
     }
 
-    public boolean updateTag (String tagId, String newLocation) throws IOException {
+    public boolean updateTag (String tagId, String newLocation)
+            throws IOException, DoorbellsApiException {
         String contents = Params.start("location", newLocation).finish();
         Params urlParams = Params.start("id", tagId);
         JsonResponse response = PostJsonResponse.makeAuthRequest(
                 "/tags/update", authToken, urlParams, contents);
 
-        return response.getResponseCode() == 200;
+        switch (response.getResponseCode()) {
+            case HTTP_OK:
+                return true;
+            case HTTP_NOT_FOUND:
+                return false;
+            default:
+                defaultErrorHandler(response);
+                return false;
+        }
     }
 
-    public boolean destroyTag (String tagId) throws IOException {
+    public boolean destroyTag (String tagId) throws IOException, DoorbellsApiException {
         Params params = Params.start("id", tagId);
         JsonResponse response = PostJsonResponse.makeAuthRequest(
                 "/tags/delete", authToken, params, null);
 
-        return response.getResponseCode() == 200;
+        switch (response.getResponseCode()) {
+            case HTTP_OK:
+                return true;
+            case HTTP_NOT_FOUND:
+                return false;
+            default:
+                defaultErrorHandler(response);
+                return false;
+        }
     }
 
-    private void defaultErrorHandler (JsonStatusResponse status)
+    private void defaultErrorHandler (JsonResponse response)
             throws DoorbellsApiException {
+        JsonStatusResponse status = response.fromJson(JsonStatusResponse.class);
+
         switch (status.status) {
-            case 401:
+            case HTTP_BAD_REQUEST:
+                throw new BadRequestException(status.msg);
+            case HTTP_UNAUTHORIZED:
                 throw new UnauthorizedException(status.msg);
+            case HTTP_SERVER_ERROR:
+                throw new InternalServerException(status.msg);
             default:
                 throw new DoorbellsApiException(status.msg);
         }

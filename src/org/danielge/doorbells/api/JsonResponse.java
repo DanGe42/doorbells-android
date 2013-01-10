@@ -1,6 +1,7 @@
 package org.danielge.doorbells.api;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class JsonResponse {
     protected int responseCode;
@@ -19,8 +20,12 @@ public class JsonResponse {
         return body;
     }
 
-    public <T> T fromJson(Class<T> jsonObjectClass) {
+    public <T> T fromJson(Class<T> jsonObjectClass) throws InternalServerException {
         Gson gson = new Gson();
-        return gson.fromJson(this.body, jsonObjectClass);
+        try {
+            return gson.fromJson(this.body, jsonObjectClass);
+        } catch (JsonSyntaxException e) {
+            throw new InternalServerException("server did not return JSON");
+        }
     }
 }
