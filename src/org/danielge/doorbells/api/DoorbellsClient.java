@@ -19,6 +19,10 @@ public class DoorbellsClient {
         this.authToken = authToken;
     }
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
     private static class AuthData {
         private String token;
 
@@ -72,6 +76,19 @@ public class DoorbellsClient {
             default:
                 throw new DoorbellsApiException(status.msg);
         }
+    }
+
+    /**
+     * Initialize the client using the provided authentication token. It is assumed
+     * that the programmer is initializing the client with an auth token from a
+     * previous session. If the token is invalid, all client calls will likely result
+     * in an {@code UnauthorizedException} being thrown.
+     *
+     * @param authToken The authentication token
+     * @return  An instantiated {@code DoorbellsClient} object.
+     */
+    public static DoorbellsClient initialize (String authToken) {
+        return new DoorbellsClient(authToken);
     }
 
     public boolean invalidate() throws IOException {
