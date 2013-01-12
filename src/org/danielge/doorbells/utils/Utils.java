@@ -7,6 +7,8 @@ public class Utils {
     public static final String MIME_JSON = "application/json";
     public static final String MIME_FORM = "application/x-www-form-urlencoded";
 
+    public static final String SENDER_ID = "343180867553";
+
     /**
      * Reads an InputStream into a String
      *
