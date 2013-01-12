@@ -6,7 +6,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 class ApiUtils {
-    public static final String API_URL = "http://localhost:3000/api";     // FIXME: USE HTTPS
+    // FIXME: USE HTTPS
+    public static final String API_URL = "http://doorbells.danielge.org/api";
 
     public static URL endpoint (String resource) throws MalformedURLException {
         return new URL(API_URL + resource);
